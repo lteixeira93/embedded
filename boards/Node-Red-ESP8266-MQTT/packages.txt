@@ -1,0 +1,5 @@
+sudo apt install -y binutils openssh-server npm mosquitto mosquitto-clients python3 python3-pip
+pip install paho-mqtt
+sudo npm install -g --unsafe-perm node-red
+sudo npm install -g --unsafe-perm node-red-dashboard
+sudo systemctl enable mosquitto.service
