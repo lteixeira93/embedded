@@ -4,7 +4,7 @@ void insertionSort(int arr[], int length) {
     int i, j, tmpStore = 0;
     
     for (i = 1; i < length; i++) {
-        int key = a[i];
+        int key = arr[i];
         
         for (j = 1; j < length; j++) {
             

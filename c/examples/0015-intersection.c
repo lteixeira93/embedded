@@ -60,10 +60,10 @@ void FindIntersection(char * strArr[], int arrLength) {
 
 int main(void) {   
   // keep this function call here
-  char *A[] = coderbyteInternalStdinFunction(stdin);
-  int arrLength = sizeof(A) / sizeof(*A);
-
-  FindIntersection(A, arrLength);
+//  char *A[] = coderbyteInternalStdinFunction(stdin);
+//  int arrLength = sizeof(A) / sizeof(*A);
+//
+//  FindIntersection(A, arrLength);
 
   return 0;    
 }
