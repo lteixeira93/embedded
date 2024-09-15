@@ -1,6 +1,0 @@
-../Core/Src/main.c:71:5:main	3
-../Core/Src/main.c:137:6:SystemClock_Config	3
-../Core/Src/main.c:175:13:task1_handler	1
-../Core/Src/main.c:184:13:task2_handler	1
-../Core/Src/main.c:202:6:HAL_TIM_PeriodElapsedCallback	2
-../Core/Src/main.c:219:6:Error_Handler	1
