@@ -27,7 +27,10 @@
 
 // #define TASKS
 // #define TASKS_DELAY
-#define PERIODIC_TASKS
+// #define PERIODIC_TASKS
+// #define TASKS_DELAY_LED
+#define TASKS_DELAY_LED_BTN
+
 
 #if !defined(__SOFT_FP__) && defined(__ARM_FP)
   #warning "FPU is not initialized, but the project is compiling for an FPU. Please initialize the FPU before use."
@@ -39,16 +42,21 @@ extern void initialise_monitor_handles(void);
 static void task1_handler(void* parameters);
 static void task2_handler(void* parameters);
 static void task3_handler(void* parameters);
+static void task4_handler(void* parameters);
+
+TaskHandle_t volatile next_task_handle = NULL;
 
 int main(void)
 {
   /* MCU Configuration--------------------------------------------------------*/
-
   /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
   HAL_Init();
 
   /* Configure the system clock */
   SystemClock_Config();
+
+  /* Initialize all configured peripherals */
+  MX_GPIO_Init();
 
   /* Configure OpenOCD */
   initialise_monitor_handles();
@@ -57,31 +65,34 @@ int main(void)
   TaskHandle_t task1_handle;
   TaskHandle_t task2_handle;
   TaskHandle_t task3_handle;
+  TaskHandle_t task4_btn_handle;
 
   /* Task status */
   BaseType_t status_t1 = 0;
   BaseType_t status_t2 = 0;
   BaseType_t status_t3 = 0;
+  BaseType_t status_t4 = 0;
 
-  // Creating tasks with 200 words stack and priority 2, tasks allocated on HEAP
-  status_t1 = xTaskCreate(task1_handler, "Task-1", 200, "Task-1 Running", 2, &task1_handle);
-  status_t2 = xTaskCreate(task2_handler, "Task-2", 200, "Task-2 Running", 1, &task2_handle);
-  status_t3 = xTaskCreate(task3_handler, "Task-3", 200, "Task-3 Running", 2, &task3_handle);
+  /*  Creating tasks with 200 words stack and priority 2, tasks allocated on HEAP */
+  status_t1 = xTaskCreate(task1_handler, "Task-1", 200, "Task-1 LED PA6 Running", 2, &task1_handle);
+  status_t2 = xTaskCreate(task2_handler, "Task-2", 200, "Task-2 LED PA7 Running", 1, &task2_handle);
+  status_t3 = xTaskCreate(task3_handler, "Task-3", 200, "Task-3 LED PA6 Running", 2, &task3_handle);
+  status_t4 = xTaskCreate(task4_handler, "Task-btn", 200, "Task-3 BTN PA0 Running", 2, &task4_btn_handle);
+
   /*
     !If the task was created successfully then pdPASS is returned.
     !Otherwise errCOULD_NOT_ALLOCATE_REQUIRED_MEMORY is returned.
   */
   configASSERT(status_t1 == pdPASS);
+  next_task_handle = task1_handle;
   configASSERT(status_t2 == pdPASS);
   configASSERT(status_t3 == pdPASS);
 
   /* Starting scheduler */
   vTaskStartScheduler();
 
-
   /* Infinite loop */
-  while (1)
-  {}
+  while (1) {}
 }
 
 // #############################################################################################################
@@ -115,7 +126,6 @@ static void task3_handler(void* parameters)
 }
 #endif
 
-
 // #############################################################################################################
 #ifdef TASKS_DELAY
 // Creates Idle tasks saving CPU cycles and power
@@ -143,6 +153,40 @@ static void task3_handler(void* parameters)
   {
     printf("%s\n", (char*)parameters);
     vTaskDelay(pdMS_TO_TICKS(400));
+  }
+}
+#endif
+
+// #############################################################################################################
+#ifdef TASKS_DELAY_LED
+// Creates Idle tasks saving CPU cycles and power
+static void task1_handler(void* parameters)
+{
+  while (1)
+  {
+    printf("%s\n", (char*)parameters);
+    HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_6);
+    vTaskDelay(pdMS_TO_TICKS(1000));
+  }
+}
+
+static void task2_handler(void* parameters)
+{
+  while (1)
+  {
+    printf("%s\n", (char*)parameters);
+    HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_6);
+    vTaskDelay(pdMS_TO_TICKS(1000));
+  }
+}
+
+static void task3_handler(void* parameters)
+{
+  while (1)
+  {
+    printf("%s\n", (char*)parameters);
+    HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_6);
+    vTaskDelay(pdMS_TO_TICKS(1000));
   }
 }
 #endif
@@ -180,6 +224,40 @@ static void task3_handler(void* parameters)
   {
     printf("%s\n", (char*)parameters);
     vTaskDelayUntil(&last_wakeup_time, pdMS_TO_TICKS(1000));
+  }
+}
+#endif
+
+// #############################################################################################################
+#ifdef TASKS_DELAY_LED_BTN
+// Creates Idle tasks saving CPU cycles and power
+static void task1_handler(void* parameters)
+{
+  while (1)
+  {
+    printf("%s\n", (char*)parameters);
+    HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_6);
+    vTaskDelay(pdMS_TO_TICKS(1000));
+  }
+}
+
+static void task2_handler(void* parameters)
+{
+  while (1)
+  {
+    printf("%s\n", (char*)parameters);
+    HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_6);
+    vTaskDelay(pdMS_TO_TICKS(1000));
+  }
+}
+
+static void task3_handler(void* parameters)
+{
+  while (1)
+  {
+    printf("%s\n", (char*)parameters);
+    HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_6);
+    vTaskDelay(pdMS_TO_TICKS(1000));
   }
 }
 #endif
@@ -225,6 +303,36 @@ void SystemClock_Config(void)
   }
 }
 
+/**
+  * @brief GPIO Initialization Function
+  * @param None
+  * @retval None
+  */
+void MX_GPIO_Init(void)
+{
+  GPIO_InitTypeDef GPIO_InitStruct = {0};
+/* USER CODE BEGIN MX_GPIO_Init_1 */
+/* USER CODE END MX_GPIO_Init_1 */
+
+  /* GPIO Ports Clock Enable */
+  __HAL_RCC_GPIOA_CLK_ENABLE();
+
+  /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_6|GPIO_PIN_7, GPIO_PIN_RESET);
+
+  /*Configure GPIO pins : PA6 PA7 for LEDs*/
+  GPIO_InitStruct.Pin = GPIO_PIN_6|GPIO_PIN_7;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+  /* Configure GPIO pin : PA0 for Button */
+  GPIO_InitStruct.Pin = GPIO_PIN_0;
+  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;  // No internal pull-up or pull-down resistor
+  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+}
 /**
   * @brief  This function is executed in case of error occurrence.
   * @retval None
