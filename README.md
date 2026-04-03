@@ -45,7 +45,7 @@ Implementations of foundational data structures commonly used in embedded system
 - Queues and stacks
 - Trees
 
-### `mcu` — Microcontroller Programming
+### `mcu` —  STM32 Microcontroller Programming
 
 Bare-metal code targeting real hardware, including:
 
